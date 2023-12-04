@@ -1,8 +1,5 @@
-from functools import reduce
-from itertools import groupby
 from math import prod
-from operator import iconcat
-from typing import Any, Dict
+from typing import Dict
 
 
 def getData(test: bool = False) -> list[str]:
@@ -48,10 +45,6 @@ def parseGame2(line: str) -> int:
         minCubes[key] = max(map(lambda x: x[key], sets))
 
     return prod(minCubes.values())
-
-
-def flatten(arr):
-    return reduce(iconcat, arr, [])
 
 
 def parseSet(set: str) -> dict[str, int]:

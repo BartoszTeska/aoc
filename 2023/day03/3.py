@@ -1,4 +1,19 @@
+from functools import reduce
+from operator import iconcat
 import re
+
+
+class Gear():
+    touchingNumbers: list[int]
+
+    def __init__(self, position: tuple[int, int]) -> None:
+        self.position = position
+        self.touchingNumbers = []
+
+    def ratio(self) -> int:
+        if (0 <= len(self.touchingNumbers) <= 1):
+            return 0
+        return self.touchingNumbers[0]*self.touchingNumbers[1]
 
 
 def getData(test: bool = False) -> list[str]:
@@ -45,13 +60,34 @@ def isAdjacent(span: tuple[int, int], lineNumber: int, symbols: list[list[int]])
     return False
 
 
-def getGears(line: str) -> list[int]:
+def isTouchingGear(gear: Gear, number: tuple[int, int, int], lineNumber: int) -> bool:
+    if (lineNumber == gear.position[0] and (number[0] == gear.position[1]+1 or number[1] == gear.position[1]-1)):
+        return True
+    if (lineNumber == gear.position[0]-1 and (any([number[0] <= x <= number[1] for x in range(gear.position[1]-1, gear.position[1]+2)]))):
+        return True
+    if (lineNumber == gear.position[0]+1 and (any([number[0] <= x <= number[1] for x in range(gear.position[1]-1, gear.position[1]+2)]))):
+        return True
+    return False
+
+
+def getGears(line: str, lineNumber: int) -> list[Gear]:
     symbols = re.finditer(r'\*', line)
-    return [m.start() for m in symbols]
+    return [Gear((lineNumber, m.start())) for m in symbols]
 
 
-def getGearRatio(gear: int, lineNumber: int, numbers: list[list[tuple[int, int, int]]]) -> int:
-    availableNums = numbers[min(0, lineNumber-1):min(lineNumber+1, len(numbers))]
+def flatten(arr):
+    return reduce(iconcat, arr, [])
+
+
+def fillGears(gear: Gear, numbers: list[list[tuple[int, int, int]]]) -> Gear:
+    for i, n in enumerate(numbers):
+        for num in n:
+            if (len(gear.touchingNumbers) == 2):
+                break
+            if (isTouchingGear(gear, num, i)):
+                gear.touchingNumbers.append(num[2])
+
+    return gear
 
 
 def solution(lines: list[str]) -> int:
@@ -64,13 +100,12 @@ def solution(lines: list[str]) -> int:
 
 def solution2(lines: list[str]) -> int:
     numbers = [getNumberRange(l) for l in lines]
-    gears = [getGears(l) for l in lines]
-    print(gears)
-    for i, gear in enumerate(gears):
-        [getGearRatio(g, i, numbers) for g in gear]
+    gears = flatten([getGears(l, i) for i, l in enumerate(lines)])
+    gears = [fillGears(gear, numbers) for gear in gears]
+    return sum(map(lambda x: x.ratio(), gears))
 
 
 if __name__ == '__main__':
-    data = getData(True)
-    # print(solution(data))
-    solution2(data)
+    data = getData()
+    print(solution(data))
+    print(solution2(data))
