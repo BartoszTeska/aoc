@@ -1,3 +1,4 @@
+from collections import defaultdict
 from functools import reduce
 from operator import iconcat
 
@@ -42,17 +43,15 @@ def solution(lines: list[str]) -> int:
 
 
 def solution2(lines: list[str]) -> int:
+    c = defaultdict(int)
     cards = [parseLine(line)for line in lines]
-    c = [[x] for x in range(len(cards))]
-    ans = 0
-    while (not all([x == [] for x in c])):
-        c1 = []
-        for i in [it for r in c for it in r]:
-            c1.append(
-                [j for j in range(i+1, i+getNumberOfMatching(*cards[i])+1)])
-        ans += len(c1)
-        c = [*c1]
-    return ans
+    for i, scratchcard in enumerate(cards):
+        wins, nums = scratchcard
+        c[i] += 1
+        for j in range(i+1, i+getNumberOfMatching(wins, nums)+1):
+            c[j] += c[i]
+
+    return sum(c.values())
 
 
 if __name__ == '__main__':
