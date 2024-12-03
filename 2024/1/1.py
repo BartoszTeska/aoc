@@ -1,6 +1,6 @@
 from collections import Counter
 from functools import reduce
-from typing import List, Tuple
+from typing import List
 
 
 def getData(test=True):
@@ -24,14 +24,13 @@ def formatData(data: List[str]):
     for l in data:
         splitted = list(map(int, l.strip().split()))
         l1.append(splitted[0])
-        l2.append((splitted[1]))
+        l2.append(splitted[1])
     return l1, l2
 
 
 def solution1(data):
-    l1 = sorted(data[0])
-    l2 = sorted(data[1])
-    return reduce(lambda x, y: x + abs(y[0] - y[1]), zip(l1, l2), 0)
+    l1, l2 = data
+    return reduce(lambda x, y: x + abs(y[0] - y[1]), zip(sorted(l1), sorted(l2)), 0)
 
 
 def solution2(data):
